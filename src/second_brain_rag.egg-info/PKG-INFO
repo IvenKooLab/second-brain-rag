@@ -1,3 +1,35 @@
+Metadata-Version: 2.4
+Name: second-brain-rag
+Version: 0.2.0
+Summary: A local 'second brain': RAG over your scattered notes and docs, with an MCP server so AI agents can use it too.
+Author: IvenKooLab
+License: MIT
+Project-URL: Homepage, https://github.com/IvenKooLab/second-brain-rag
+Project-URL: Changelog, https://github.com/IvenKooLab/second-brain-rag/blob/main/CHANGELOG.md
+Project-URL: Roadmap, https://github.com/IvenKooLab/second-brain-rag/blob/main/docs/roadmap.md
+Keywords: rag,second-brain,mcp,obsidian,chromadb,local-first,embeddings
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Text Processing :: Indexing
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: openai>=1.50
+Requires-Dist: chromadb>=0.5
+Provides-Extra: pdf
+Requires-Dist: pypdf>=4; extra == "pdf"
+Provides-Extra: dev
+Requires-Dist: pytest>=8; extra == "dev"
+Dynamic: license-file
+
 # second-brain-rag 🧠
 
 ![CI](https://github.com/IvenKooLab/second-brain-rag/actions/workflows/ci.yml/badge.svg)
@@ -73,20 +105,16 @@ mid-block, and one-line notes stay searchable.
 Requires Python 3.11+ (uses the stdlib `tomllib`).
 
 ```bash
-# option A: install as a package (adds `second-brain` and `second-brain-mcp` commands)
-pip install -e ".[pdf]"        # [pdf] pulls optional pypdf for PDF sources
-
-# option B: zero-install quickstart
 pip install -r requirements.txt
 
 # 1. Configure: copy the example and fill in your values
 cp config.example.toml config.toml
 
 # 2. Ingest (incremental — deduplicated by content hash, safe to re-run)
-second-brain ingest            # or: python main.py ingest
+python main.py ingest
 
 # 3. Ask
-second-brain ask "what did I write about X?"
+python main.py ask "what did I write about X?"
 ```
 
 ## Commands
@@ -94,8 +122,8 @@ second-brain ask "what did I write about X?"
 | Command | What it does |
 |---|---|
 | `ingest` | scan sources, index new/changed files, prune deleted ones (`--force` re-embeds everything) |
-| `search "query"` | retrieval only — ranked excerpts with `path > section` breadcrumbs (`--tag foo` filters by frontmatter tag, `-k N` overrides top_k, `--rerank` LLM-reranks candidates) |
-| `ask "question"` | retrieval + LLM answer with `[source: path > section]` citations (`--rerank` supported) |
+| `search "query"` | retrieval only — ranked excerpts with `path > section` breadcrumbs (`--tag foo` filters by frontmatter tag, `-k N` overrides top_k) |
+| `ask "question"` | retrieval + LLM answer with `[source: path > section]` citations |
 | `chat` | multi-turn Q&A loop with conversation memory (`/clear`, `/exit`) |
 | `watch` | keep the index current by polling sources (interval in `[watch]`) |
 | `stats` | what's in the index: chunks per source, models, retrieval settings |
@@ -135,7 +163,7 @@ The server exposes three tools (zero dependencies beyond the core):
 | `[[sources]]` | list of document directories, scanned recursively for `.md` / `.txt` (`.pdf` too, if `pypdf` is installed) |
 | `[chunk]` | chunking params (default 800 chars / 100 overlap) |
 | `[top_k]` | number of hits per search (default 5) |
-| `[retrieval]` | `hybrid` (vector+BM25 fusion, default on), `rrf_k`, `rerank` (LLM reranking, default off) |
+| `[retrieval]` | `hybrid` (vector+BM25 fusion, default on) and `rrf_k` |
 | `[watch]` | poll `interval` seconds |
 
 API keys can also come from the environment variables `BRAIN_LLM_API_KEY` /
